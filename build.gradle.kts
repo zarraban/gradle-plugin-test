@@ -33,10 +33,29 @@ tasks.register("runVerificationTasks"){
     }
     dependsOn("checkGitEmail", "analyzeForbiddenImports")
 
+    finalizedBy("verificationReport")
+
+
+}
+tasks.named("checkGitEmail") { finalizedBy("verificationReport") }
+tasks.named("analyzeForbiddenImports") { finalizedBy("verificationReport") }
+
+tasks.register("verificationReport"){
     doLast {
-        println("Custom verification task has been finished!")
+
+
+        val gitTaskState = tasks.named("checkGitEmail").get().state
+        val importsTaskState = tasks.named("analyzeForbiddenImports").get().state
+
+        println(
+            """
+            ===VERIFICATION REPORT===
+            Git Email check executed: Executed: ${gitTaskState.executed}, Failure: ${gitTaskState.failure}
+            Import Task check executed: Executed: ${importsTaskState.executed}, Failure: ${importsTaskState.failure}
+            
+        """.trimIndent()
+        )
+
     }
-
-
 }
 
